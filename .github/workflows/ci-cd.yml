@@ -41,13 +41,14 @@ jobs:
       - name: Deploy to VPS
         env:
           PATH_TO_PROJECT: "/projects/WebApplication_Docker.UI"
+          PROJECT_NAME: "CICD_WebApplication_Using_Docker"
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
           if [ ! -d ${{ env.PATH_TO_PROJECT }} ]; then
             mkdir ${{ env.PATH_TO_PROJECT }}
           fi
           if [ ! -d ${{ env.PATH_TO_PROJECT }}/.git ]; then
-            git clone git@github.com:ddnhuy/CICD_WebApplication_Docker.UI.git ${{ env.PATH_TO_PROJECT }}
+            git clone git@github.com:ddnhuy/${{ env.PROJECT_NAME }}.git ${{ env.PATH_TO_PROJECT }}
           fi
           cd ${{ env.PATH_TO_PROJECT }} && git checkout main && git pull && docker compose -f "docker-compose.release.yml" up -d"
 
