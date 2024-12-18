@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "1000:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  webapplication_docker.ui:
+    image: ${DOCKER_REGISTRY-}webapplicationdockerui
+    container_name: app
+    build:
+      context: .
+      dockerfile: WebApplication_Docker.UI/Dockerfile
+    ports:
+      - "1001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=${CERT_PATH}
+      - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=${CERT_KEYPATH}
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};User Id=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+    depends_on:
+      - db
+    volumes:
+      - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/https/fullchain.pem:ro
+      - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/https/privkey.pem:ro
+volumes:
+  postgres_data:
